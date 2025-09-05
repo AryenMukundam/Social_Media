@@ -1,6 +1,6 @@
 import generateToken from "../config/token.js";
 import User from "../models/user.model.js";
-import bcrypt from "bcryptjs"; // or "bcrypt"
+import bcrypt from "bcryptjs";
 
 export const signUp = async (req, res) => {
   const { name, userName, email, password } = req.body;
@@ -46,6 +46,13 @@ export const signUp = async (req, res) => {
     });
 
     const token = await generateToken(newUser._id)
+     res.cookie('token' , token , {
+    httpOnly:true, // httpOnly: true means the cookie can only be used by the server, not read by your website’s JavaScript.
+    sameSite:true,  // sameSite tells the browser when to send a cookie with cross-site requests,
+    maxAge: 30*24*60*60*1000 // 30 days as it only take milliseconds
+
+  })
+
     return res.status(201).json({ message: "User Created Successfully" });
   } catch (err) {
     return res.status(500).json({ message: "Internal Server Error" });
@@ -77,6 +84,17 @@ export const signIn = async (req, res) => {
   if (!isCorrectPassword) {
     res.status(400).json({ message: "Incorrect Password" });
   }
+
+  const token = await generateToken(user._id)
+
+  // saving tokens in cookies
+
+  res.cookie('token' , token , {
+    httpOnly:true, // httpOnly: true means the cookie can only be used by the server, not read by your website’s JavaScript.
+    sameSite:true,  // sameSite tells the browser when to send a cookie with cross-site requests,
+    maxAge: 30*24*60*60*1000 // 30 days as it only take milliseconds
+
+  })
 
   res.status(200).json({ message: "User Logged in" });
 };
