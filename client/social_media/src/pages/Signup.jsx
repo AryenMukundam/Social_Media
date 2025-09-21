@@ -3,6 +3,10 @@ import { Link } from "react-router-dom";
 import img1 from "../assets/Logo.png";
 import { signUp } from "../apiCalls/authCalls.js";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { setUserData } from "../redux/userSlice";
+
+
 
 
 
@@ -13,6 +17,7 @@ export default function Signup() {
   const [password, setPassword] = useState("");
 
   const navigate = useNavigate()
+  const dispatch = useDispatch()
 
   const handleSignUp = async() => {
 
@@ -29,6 +34,8 @@ export default function Signup() {
       const response = await signUp(user);
       console.log("Sign Up Successful" , response);
       alert("Sign Up Successfull! Please Sign In")
+
+      dispatch(setUserData(response))
 
       navigate("/home")
       // clearing the form

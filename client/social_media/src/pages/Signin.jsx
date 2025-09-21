@@ -3,12 +3,17 @@ import { Link } from "react-router-dom";
 import Logo from "../assets/Logo.png";
 import { signIn } from "../apiCalls/authCalls";
 import { useNavigate } from "react-router-dom";
+import { useDispatch} from "react-redux"
+import { setUserData } from "../redux/userSlice";
+
 
 export default function Signin() {
   const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
 
-    const navigate = useNavigate();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
 
   const handleSignIn = async () => {
     if (!userName || !password) {
@@ -22,14 +27,17 @@ export default function Signin() {
     };
 
     try {
-
-      
       const response = await signIn(user);
-   
+
       console.log("Sign In Successful", response);
       alert("Sign In Successful");
 
-        navigate("/home")
+      dispatch(setUserData(response))
+
+      
+
+
+      navigate("/home");
       // clearing the form
       setUserName("");
       setPassword("");

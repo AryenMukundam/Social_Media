@@ -31,4 +31,16 @@ export const signIn = async (userData) => {
     }
 }
 
+export const getCurrentUser = async () => {
+    try{
+        const response = await api.get("/api/user/current")
+        return response.data
+    }
+    catch(err){
+        throw err.response.data
+
+    }
+}
+
+
 
