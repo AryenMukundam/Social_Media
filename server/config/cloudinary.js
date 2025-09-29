@@ -1,4 +1,4 @@
-import { vs as cloudinary } from "cloudinary";
+import { v2 as cloudinary } from "cloudinary";
 
 // we are going to send an image and store it on the cloud and then cloudinary will generate url for it
 // that url will be stored in database and from that url we will send it to client and client will render it on the app

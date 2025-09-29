@@ -45,13 +45,12 @@ export const signUp = async (req, res) => {
       password: hashedPassword,
     });
 
-    const token = await generateToken(newUser._id)
-     res.cookie('token' , token , {
-    httpOnly:true, // httpOnly: true means the cookie can only be used by the server, not read by your website’s JavaScript.
-    sameSite:true,  // sameSite tells the browser when to send a cookie with cross-site requests,
-    maxAge: 30*24*60*60*1000 // 30 days as it only take milliseconds
-
-  })
+    const token = await generateToken(newUser._id);
+    res.cookie("token", token, {
+      httpOnly: true, // httpOnly: true means the cookie can only be used by the server, not read by your website’s JavaScript.
+      sameSite: true, // sameSite tells the browser when to send a cookie with cross-site requests,
+      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days as it only take milliseconds
+    });
 
     return res.status(201).json({ message: "User Created Successfully" });
   } catch (err) {
@@ -85,16 +84,15 @@ export const signIn = async (req, res) => {
     res.status(400).json({ message: "Incorrect Password" });
   }
 
-  const token = await generateToken(user._id)
+  const token = await generateToken(user._id);
 
   // saving tokens in cookies
 
-  res.cookie('token' , token , {
-    httpOnly:true, // httpOnly: true means the cookie can only be used by the server, not read by your website’s JavaScript.
-    sameSite:true,  // sameSite tells the browser when to send a cookie with cross-site requests,
-    maxAge: 30*24*60*60*1000 // 30 days as it only take milliseconds
+  res.cookie("token", token, {
+    httpOnly: true, // httpOnly: true means the cookie can only be used by the server, not read by your website’s JavaScript.
+    sameSite: true, // sameSite tells the browser when to send a cookie with cross-site requests,
+    maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days as it only take milliseconds
+  });
 
-  })
-
-  res.status(200).json({user});
+  res.status(200).json({ user });
 };

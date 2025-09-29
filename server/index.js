@@ -5,6 +5,7 @@ import authRouter from "./routes/auth.routes.js";
 import userRouter from "./routes/user.routes.js";
 import cookieParser from "cookie-parser";
 import cors from "cors"
+import postRouter from "./routes/post.routes.js";
 
 const app = express();
 app.use(express.json());
@@ -23,6 +24,8 @@ connectDB(process.env.dbUrl);
 app.use("/api/auth", authRouter);
 
 app.use("/api/user", userRouter);
+
+app.use("/api/post", postRouter);
 
 app.get("/", (req, res) => {
   res.send("Hello I am ready");

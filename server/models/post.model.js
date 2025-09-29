@@ -60,6 +60,6 @@ let PostSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-let User = new mongoose.model("post", PostSchema);
+let Post = new mongoose.model("post", PostSchema);
 
-export default User;
+export default Post;

@@ -6,6 +6,9 @@ import LandingPage from "./pages/LandingPage";
 import ForgotPassword from "./pages/ForgotPassword";
 import useCurrentUser from "./hooks/useCurrentUser";
 import { useSelector } from "react-redux";
+import Profile from "./pages/Profile";
+import EditProfile from "./pages/EditProfile";
+import UploadPost from "./pages/UploadPost";
 
 export default function App() {
 
@@ -21,6 +24,9 @@ export default function App() {
       <Route path="/signup" element={<Signup />} />
       <Route path="/signin" element={<Signin />} />
       <Route path="/forgotpassword" element={<ForgotPassword/>} />
+      <Route path="/profile/:userName" element={<Profile/>} />
+      <Route path="/editprofile/" element={<EditProfile/>} />
+      <Route path="/upload/" element={<UploadPost/>} />
     </Routes>
   );
 }
