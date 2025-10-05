@@ -47,25 +47,52 @@ export const getProfile = async (userName) => {
 export const editProfile = async (formData) => {
   try {
     const response = await api.post(`/api/user/editprofile/`, formData, {
-      headers: { "Content-Type": "multipart/form-data" },
       withCredentials: true,
     });
-
     return response.data;
   } catch (error) {
     throw error.response?.data?.message || "Failed to fetch user data";
   }
 };
 
-export const createPost = async (formData) => {
-  try {
+
+export const createPost = async (formData)=>{
+    try {
     const response = await api.post(`/api/post/upload/`, formData, {
-      headers: { "Content-Type": "multipart/form-data" },
       withCredentials: true,
     });
-
     return response.data;
   } catch (error) {
-    throw error.response?.data?.message || "Failed to fetch post data";
+    throw error.response?.data?.message || "Failed to fetch user data";
+  } 
+}
+
+// Get all the Posts
+
+
+export const getAllPosts = async ()=>{
+    try {
+    const response = await api.get(`/api/post/getAllPosts`,  {
+      withCredentials: true,
+    });
+    return response.data;
+  } catch (error) {
+    throw error.response?.data?.message || "Failed to fetch Posts";
+  } 
+}
+
+// post Like
+
+export const likePost = async (postId) => {
+  try {
+    const response = await api.post(`/api/post/like/${postId}`, {}, { withCredentials: true })
+    return response.data
+  } catch (error) {
+    throw error.response?.data?.message || "Failed to like post";
   }
-};
+}
+
+
+
+
+

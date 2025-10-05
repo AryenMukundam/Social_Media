@@ -5,17 +5,21 @@ import { FiPlusSquare } from "react-icons/fi";
 import { createPost } from "../apiCalls/authCalls";
 import logo2 from "../assets/logo.png";
 import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { setPostData } from "../redux/postSlice";
 
 function Upload() {
+  const { postData } = useSelector(state => state.post); // ensure it's destructured properly
   const [uploadType, setUploadType] = useState("post");
   const [frontendMedia, setFrontendMedia] = useState(null);
+  const [backendMedia, setBackendMedia] = useState(null);
   const [mediaType, setMediaType] = useState("");
   const [caption, setCaption] = useState("");
-  const [backendMedia, setBackendMedia] = useState(null);
   const [loading, setLoading] = useState(false);
 
   const mediaInput = useRef();
-  const navigate = useNavigate()
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleMedia = (e) => {
     const file = e.target.files[0];
@@ -33,7 +37,9 @@ function Upload() {
     setBackendMedia(file);
   };
 
-  const uploadPost = async () => {
+  const uploadPostHandler = async () => {
+    if (!backendMedia) return;
+
     try {
       setLoading(true);
       const formData = new FormData();
@@ -44,12 +50,17 @@ function Upload() {
       const result = await createPost(formData);
       console.log("Post uploaded successfully:", result);
 
+      // Append new post to existing array safely
+      dispatch(setPostData([...postData, result]));
+
+      // Reset form
       setFrontendMedia(null);
       setBackendMedia(null);
       setMediaType("");
       setCaption("");
     } catch (error) {
-      console.log("Failed to upload Post", error);
+      console.log("Failed to upload Post:", error);
+      alert("Failed to upload post");
     } finally {
       setLoading(false);
     }
@@ -65,7 +76,7 @@ function Upload() {
             <MdOutlineKeyboardBackspace
               className="text-white cursor-pointer w-7 h-7 hover:text-indigo-400 transition"
               onClick={() => navigate(-1)}
-            />{" "}
+            />
             <h2 className="text-xl font-semibold">Upload Media</h2>
           </div>
 
@@ -150,7 +161,7 @@ function Upload() {
           {/* Upload button */}
           {uploadType === "post" && frontendMedia && (
             <button
-              onClick={uploadPost}
+              onClick={uploadPostHandler}
               disabled={loading}
               className="w-full h-12 mt-6 rounded-xl font-semibold bg-blue-600 text-white hover:bg-blue-700 active:scale-95 transition shadow-lg"
             >

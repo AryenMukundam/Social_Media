@@ -9,10 +9,12 @@ import { useSelector } from "react-redux";
 import Profile from "./pages/Profile";
 import EditProfile from "./pages/EditProfile";
 import UploadPost from "./pages/UploadPost";
+import useAllPosts from "./hooks/useAllPosts";
 
 export default function App() {
 
   useCurrentUser()
+  useAllPosts()
 
     const {userData} = useSelector(state=>state.user)
   

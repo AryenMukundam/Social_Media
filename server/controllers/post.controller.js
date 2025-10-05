@@ -1,20 +1,20 @@
+// upload a Post
 import Post from "../models/post.model.js";
-import uploadToCloud from "../config/cloudinary.js";
 import User from "../models/user.model.js";
 
-// upload post
+import uploadOnCloud from "../config/cloudinary.js";
 
 export const uploadPost = async (req, res) => {
   // media file
   // caption
-  // time at which post has been created
-  // userName
-  // profileImage
+  // Created Time
   try {
     const { caption, mediaType } = req.body;
+
     let mediaUrl = "";
+
     if (req.file) {
-      mediaUrl = await uploadToCloud(req.file.path);
+      mediaUrl = await uploadOnCloud(req.file.path);
     } else {
       return res.status(404).json({ message: "No Media File Detected" });
     }
@@ -28,15 +28,76 @@ export const uploadPost = async (req, res) => {
 
     const user = await User.findById(req.userId).populate("posts");
     user.posts.push(post._id);
-    await user.save()
+    await user.save();
 
     const populatedPost = await Post.findById(post._id).populate(
       "author",
       "userName profileImage"
     );
 
-    res.status(200).json(populatedPost);
+    // userName
+    // porfileImage
+
+    return res.status(200).json(populatedPost);
   } catch (error) {
-    console.log(`Cannot create post , ${error}`);
+    console.error(`Cannot create Post , ${error}`);
   }
 };
+
+export const getAllPosts = async (req, res) => {
+  try {
+    const posts = await Post.find({}).populate("author", "userName profileImage");
+
+    if (!posts || posts.length === 0) {
+      return res.status(404).json({ message: "No Posts Found" });
+    }
+
+    return res.status(200).json(posts);
+  } catch (error) {
+    console.error("Error fetching posts:", error);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+export const like = async (req, res) => {
+  // get the user
+  // get the post id
+  // check for alreadyLiked or not
+  // if not add one like - update
+  // if liked then remove - update
+  const postId = req.params.postId;
+  const post = await Post.findById(postId);
+
+  if (!post) {
+    return res.status(404).json({ message: "Could not find Post" });
+  }
+
+  const alreadyLiked = post.likes.some(
+    (id) => id.toString() == req.userId.toString()
+  );
+
+  if (alreadyLiked) {
+    // Unlike
+    post.likes = post.likes.filter(
+      (id) => id.toString() !== req.userId.toString()
+    );
+  } else {
+    // like
+    post.likes.push(req.userId);
+  }
+
+  await post.save();
+  await post.populate("author", "userName profileImage");
+
+  return res.status(200).json(post);
+};
+
+// controller for comments
+ export const comments= async(req , res)=>{
+    // post id
+    // user id
+    // text 
+    // createad At
+
+
+ }
