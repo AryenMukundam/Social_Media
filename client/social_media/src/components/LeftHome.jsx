@@ -1,10 +1,35 @@
 // src/components/LeftHomeDesign.jsx
-import React from "react";
+import React, { useState } from "react";
 import logo from "../assets/Logo.png";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { logout } from "../apiCalls/authCalls";
+import { setUserData } from "../redux/userSlice";
+import { useNavigate } from "react-router-dom";
 
 function LeftHome() {
-  const { userData } = useSelector((state) => state.user);
+  const { userData, suggestedUsers } = useSelector((state) => state.user);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  const handleLogout = async () => {
+    if (isLoggingOut) return;
+    
+    console.log("Logout Clicked");
+    setIsLoggingOut(true);
+    
+    try {
+      await logout(); // call the API
+      dispatch(setUserData(null)); // clear user data from Redux
+      localStorage.removeItem('token'); // clear token if stored
+      navigate('/');
+    } catch (error) {
+      console.error("Logout failed:", error.message);
+      alert(error.message || "Logout failed. Please try again.");
+      setIsLoggingOut(false);
+    }
+  };
+
   return (
     <div
       className="
@@ -33,18 +58,22 @@ function LeftHome() {
               src={userData?.profileImage}
               alt="profile"
               className="w-full h-full object-cover"
-            />{" "}
+            />
           </div>
           <div>
             <div className="font-semibold text-sm text-neutral-100">
-              {userData.userName}
+              {userData?.userName}
             </div>
-            <div className="text-xs text-neutral-400">{userData.name}</div>
+            <div className="text-xs text-neutral-400">{userData?.name}</div>
           </div>
         </div>
-        <div className="text-blue-400 text-sm font-semibold cursor-pointer hover:underline">
-          Log Out
-        </div>
+        <button
+          onClick={handleLogout}
+          disabled={isLoggingOut}
+          className="text-blue-400 text-sm font-semibold hover:underline disabled:opacity-50 disabled:cursor-not-allowed transition"
+        >
+          {isLoggingOut ? 'Logging out...' : 'Log Out'}
+        </button>
       </div>
 
       {/* Suggested Users */}
@@ -52,24 +81,52 @@ function LeftHome() {
         <h1 className="text-sm font-semibold text-neutral-300 tracking-wide">
           Suggested for you
         </h1>
-        {Array(5)
-          .fill("")
-          .map((_, i) => (
-            <div key={i} className="flex items-center justify-between w-full">
-              <div className="flex items-center gap-3">
-                <div className="w-[48px] h-[48px] rounded-full bg-neutral-700"></div>
-                <div>
-                  <p className="font-medium text-sm text-neutral-200">
-                    user_{i + 1}
-                  </p>
-                  <p className="text-xs text-neutral-500">Suggested for you</p>
-                </div>
+        {suggestedUsers?.slice(0, 5).map((user) => (
+          <div key={user._id || user.id} className="flex items-center justify-between w-full">
+            <div className="flex items-center gap-3">
+              <div className="w-[48px] h-[48px] rounded-full bg-neutral-700 overflow-hidden">
+                {user.profileImage && (
+                  <img 
+                    src={user.profileImage} 
+                    alt={user.userName}
+                    className="w-full h-full object-cover"
+                  />
+                )}
               </div>
-              <button className="text-blue-400 text-xs font-semibold hover:underline transition">
-                Follow
-              </button>
+              <div>
+                <p className="font-medium text-sm text-neutral-200">
+                  {user.userName}
+                </p>
+                <p className="text-xs text-neutral-500">
+                  {user.name || 'Suggested for you'}
+                </p>
+              </div>
             </div>
-          ))}
+            <button className="text-blue-400 text-xs font-semibold hover:underline transition">
+              Follow
+            </button>
+          </div>
+        )) || (
+          // Fallback to placeholder if no suggested users
+          Array(5)
+            .fill("")
+            .map((_, i) => (
+              <div key={i} className="flex items-center justify-between w-full">
+                <div className="flex items-center gap-3">
+                  <div className="w-[48px] h-[48px] rounded-full bg-neutral-700"></div>
+                  <div>
+                    <p className="font-medium text-sm text-neutral-200">
+                      user_{i + 1}
+                    </p>
+                    <p className="text-xs text-neutral-500">Suggested for you</p>
+                  </div>
+                </div>
+                <button className="text-blue-400 text-xs font-semibold hover:underline transition">
+                  Follow
+                </button>
+              </div>
+            ))
+        )}
       </div>
     </div>
   );

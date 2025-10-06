@@ -96,3 +96,14 @@ export const signIn = async (req, res) => {
 
   res.status(200).json({ user });
 };
+
+export const logout = async (req, res) => {
+  try {
+    res
+      .clearCookie("token", { path: "/" }) // name must match the cookie you set
+      .status(200)
+      .json({ message: "Logged out successfully" });
+  } catch (error) {
+    res.status(500).json({ msg: "Logout failed" });
+  }
+};

@@ -4,6 +4,7 @@ import logo from "../assets/Logo.png";
 import { useSelector } from "react-redux";
 import Post from "./Post";
 import NavDesign from "./NavBar";
+import StoriesBar from "./StoriesBar";
 
 function FeedDesign() {
   const { postData } = useSelector((state) => state.post);
@@ -24,6 +25,11 @@ function FeedDesign() {
             <div className="w-7 h-7 bg-gray-700 rounded-full"></div>
           </div>
         </div>
+
+           <div className="flex w-full overflow-x-auto gap-4 px-6 py-4 border-b border-neutral-200">
+          <StoriesBar/>
+        </div>
+
 
         {/* Nav Bar */}
         <NavDesign />

@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { AiOutlineHeart, AiFillHeart } from "react-icons/ai";
 import { BiComment } from "react-icons/bi";
 import { BsBookmark } from "react-icons/bs";
-import { likePost} from "../apiCalls/authCalls";
+import { likePost , comment} from "../apiCalls/authCalls";
 import { updatePost } from "../redux/postSlice";
 
 function Post({ post }) {
@@ -36,27 +36,43 @@ function Post({ post }) {
     }
   };
 
-  // Handle Comment
-  const handleComment = async (e) => {
-   // Finish this function
-  };
+
+const handleComment = async (e) => {
+  e.preventDefault();
+  
+  if (!commentText.trim() || isCommenting) return;
+  
+  setIsCommenting(true);
+  
+  try {
+    const updatedPost = await comment(post._id, commentText);
+    dispatch(updatePost(updatedPost));
+    setCommentText(""); // Clear input after successful comment
+    setShowComments(true); // Show comments section
+  } catch (error) {
+    console.error("Comment error:", error);
+  } finally {
+    setIsCommenting(false);
+  }
+};
 
   return (
     <div className="w-full bg-gray-800 border border-gray-700 rounded-2xl p-5 mb-6 shadow-lg text-gray-100">
   {/* Post header */}
-  <div className="flex items-center gap-3 mb-4">
-    <div className="w-10 h-10 rounded-full bg-gray-700 overflow-hidden ring-1 ring-gray-600">
-      <img
-        src={post.author.profileImage}
-        alt="profile"
-        className="w-full h-full object-cover"
-      />
+ <div className="w-10 h-10 rounded-full bg-gray-700 overflow-hidden ring-1 ring-gray-600">
+  {post.author.profileImage ? (
+    <img
+      src={post.author.profileImage}
+      alt="profile"
+      className="w-full h-full object-cover"
+    />
+  ) : (
+    <div className="w-full h-full bg-gray-600 flex items-center justify-center text-gray-300 font-bold">
+      {post.author.userName?.charAt(0).toUpperCase() || "U"}
     </div>
-    <div>
-      <p className="font-semibold text-sm">{post.author.userName}</p>
-      <p className="text-xs text-gray-400">{new Date(post.createdAt).toLocaleDateString()}</p>
-    </div>
-  </div>
+  )}
+</div>
+
 
   {/* Post media */}
   <div className="w-full h-[500px] bg-gray-700 rounded-xl mb-4 overflow-hidden shadow-inner">
@@ -98,19 +114,18 @@ function Post({ post }) {
   )}
 
   {/* Comments */}
-  {showComments && commentsCount > 0 && (
-    <div className="mt-3 max-h-[200px] overflow-y-auto border-t border-gray-700 pt-3">
-      {post.comments.map((comment, idx) => (
-        <div key={idx} className="mb-3">
-          <p className="text-sm">
-            <span className="font-semibold">{comment.author.userName}</span> {comment.message}
-          </p>
-          <p className="text-xs text-gray-500 mt-1">{new Date(comment.createdAt).toLocaleDateString()}</p>
-        </div>
-      ))}
-    </div>
-  )}
-
+{showComments && commentsCount > 0 && (
+  <div className="mt-3 max-h-[200px] overflow-y-auto border-t border-gray-700 pt-3">
+    {post.comments.map((comment, idx) => (
+      <div key={idx} className="mb-3">
+        <p className="text-sm">
+          <span className="font-semibold">{comment.user.userName}</span> {comment.text}
+        </p>
+        <p className="text-xs text-gray-500 mt-1">{new Date(comment.createdAt).toLocaleDateString()}</p>
+      </div>
+    ))}
+  </div>
+)}
   {/* Add comment */}
   <form onSubmit={handleComment} className="flex gap-2 mt-3 border-t border-gray-700 pt-3">
     <input

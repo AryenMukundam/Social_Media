@@ -2,6 +2,8 @@ import mongoose from "mongoose";
 
 let StorySchema = new mongoose.Schema(
   {
+    // user
+    // to refer to some different collection in mongo we use schema types
     author: {
       ref: "user",
       type: mongoose.Schema.Types.ObjectId,
@@ -21,22 +23,9 @@ let StorySchema = new mongoose.Schema(
       required: true,
     },
 
-    viewers:[
-        {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'user'
-        }
-    ],
-    expiresAt:{
-        type:Date,
-        default: function(){
-          return new Date(Date.now() + 24*60*60*1000)
-        },
-
-        index:{expires:0}// whenever the time will pass it will automatically delete the document (TTL Indexing)
+    viewers:{
         
-
-    },
+    }
   },
   { timestamps: true }
 );

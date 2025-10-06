@@ -10,11 +10,14 @@ import Profile from "./pages/Profile";
 import EditProfile from "./pages/EditProfile";
 import UploadPost from "./pages/UploadPost";
 import useAllPosts from "./hooks/useAllPosts";
+import getSuggestedUsers from "./hooks/getSuggestedUsers";
+import CreateStory from "./components/CreateStory";
 
 export default function App() {
 
   useCurrentUser()
   useAllPosts()
+  getSuggestedUsers()
 
     const {userData} = useSelector(state=>state.user)
   
@@ -29,6 +32,7 @@ export default function App() {
       <Route path="/profile/:userName" element={<Profile/>} />
       <Route path="/editprofile/" element={<EditProfile/>} />
       <Route path="/upload/" element={<UploadPost/>} />
+         <Route path='/create-story' element={<CreateStory/>}/>
     </Routes>
   );
 }

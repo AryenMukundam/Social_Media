@@ -46,18 +46,25 @@ export const uploadPost = async (req, res) => {
 
 export const getAllPosts = async (req, res) => {
   try {
-    const posts = await Post.find({}).populate("author", "userName profileImage");
-
-    if (!posts || posts.length === 0) {
-      return res.status(404).json({ message: "No Posts Found" });
-    }
-
+    // Get current user with following list
+    const currentUser = await User.findById(req.userId);
+    
+    // Create array of user IDs to fetch posts from (followed users + self)
+    const userIds = [req.userId, ...currentUser.following];
+    
+    // Get posts only from these users
+    const posts = await Post.find({
+      author: { $in: userIds }
+    })
+      .populate("author", "name userName profileImage")
+      .sort({ createdAt: -1 }); // Latest posts first
+    
     return res.status(200).json(posts);
   } catch (error) {
-    console.error("Error fetching posts:", error);
-    return res.status(500).json({ message: "Internal Server Error" });
+    return res.status(500).json({ message: `Cannot get posts error ${error}` });
   }
 };
+
 
 export const like = async (req, res) => {
   // get the user
@@ -65,7 +72,7 @@ export const like = async (req, res) => {
   // check for alreadyLiked or not
   // if not add one like - update
   // if liked then remove - update
-  const postId = req.params.postId;
+  const postId = req.postId;
   const post = await Post.findById(postId);
 
   if (!post) {
@@ -92,12 +99,47 @@ export const like = async (req, res) => {
   return res.status(200).json(post);
 };
 
-// controller for comments
- export const comments= async(req , res)=>{
-    // post id
-    // user id
-    // text 
-    // createad At
+export const comments = async (req, res) => {
+  try {
+    const { postId } = req.params;
+    const { text } = req.body;
+    const userId = req.userId;
 
+    if (!text?.trim()) {
+      return res.status(400).json({ message: "Comment text is required" });
+    }
 
- }
+    // find user
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // find post
+    const post = await Post.findById(postId);
+    if (!post) {
+      return res.status(404).json({ message: "Post not found" });
+    }
+
+    // create comment object matching schema
+    const newComment = {
+      user: userId,
+      text: text,
+      createdAt: new Date(),
+    };
+
+    // push to post comments
+    post.comments.push(newComment);
+    await post.save();
+
+    // populate user info for frontend
+    const updatedPost = await Post.findById(postId)
+      .populate("author", "userName profileImage")
+      .populate("comments.user", "userName profileImage");
+
+    res.status(200).json(updatedPost);
+  } catch (error) {
+    console.error("Error while adding comment:", error);
+    res.status(500).json({ message: "Failed to add comment", error });
+  }
+};

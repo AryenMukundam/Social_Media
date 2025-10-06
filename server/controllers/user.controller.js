@@ -62,3 +62,16 @@ export const editProfile = async (req, res) => {
     console.log(`Error Updating User -> ${error}`);
   }
 };
+
+export const SuggestedUsers = async (req, res) => {
+  try {
+    const users = await User.find({
+      _id: { $ne: req.userId },
+    }).select("-password");
+    return res.status(200).json(users);
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: `get suggested user error ${error}` });
+  }
+};
